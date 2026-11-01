@@ -824,7 +824,7 @@
     window.__listingLive = false;
     /* =====================================================================
        Shielded Nakas 盾卫空战 · Shielded Skies — 公开版（静态页）
-       数据来源（构建时快照 2026-11-01，项目公开接口 shielded-api.ord-dropz.xyz）：
+       数据来源（构建时快照 2026-11-02，项目公开接口 shielded-api.ord-dropz.xyz）：
        - 注册表 /api/shielded/collection：合集 3,333 个编号（#0–#3332），实际
          存在 3,327 件；缺号 6 个 = [1612, 1613, 2816, 2817, 2881, 2889]。
        - 挂牌价 /api/shielded/listings：仅在售的 96 件有真实挂牌价（sats），v8 起页面打开时尝试实时同步 listings，成功用新池并存下上一次，失败延用上一次、首次失败用本快照；
@@ -833,7 +833,7 @@
          运行时零图片网络请求。
        ===================================================================== */
 
-    var PRICE_MAP = {2464:100000000,2627:100000000,2914:36900000,1234:12340000,3100:5000000,50:3100000,188:2500000,1339:2500000,186:2000000,2822:2000000,467:1888000,187:1800000,239:1690000,3106:1690000,821:1500000,1324:1500000,3120:1500000,1476:1499900,762:1400000,2571:1400000,736:1300000,3145:1300000,3202:1300000,325:1200000,1336:1050000,868:1000000,1901:1000000,3062:1000000,1581:990000,52:950000,30:900000,1144:900000,2058:900000,2641:889000,1808:888888,3122:888000,2145:869000,1411:850000,193:820000,465:800000,2142:790000,2241:790000,1944:750000,2897:750000,577:720000,255:700000,257:700000,1646:700000,712:690000,1040:666000,3231:660000,1995:625000,1552:620000,1163:600000,2320:600000,2177:599000,2782:570000,117:569000,120:550000,810:550000,1361:550000,2032:550000,2590:550000,2835:550000,2952:550000,3024:550000,3025:550000,277:540000,2436:531000,1323:530000,1976:530000,2527:529000,2617:528800,1204:522222,380:510000,391:510000,881:510000,2922:500000,3038:500000,2360:498000,1017:490000,1081:490000,2217:490000,1216:480000,1264:480000,2735:469000,2350:460000,1267:443000,1211:442000,1463:440000,2516:440000,3183:440000,1151:439800,1240:430000,1667:420000,1239:410000};
+    var PRICE_MAP = {2464:100000000,2627:100000000,2914:36900000,1234:12340000,3100:5000000,50:3100000,188:2500000,1339:2500000,186:2000000,2822:2000000,467:1888000,187:1800000,239:1690000,3106:1690000,821:1500000,1324:1500000,3120:1500000,1476:1499900,762:1400000,2571:1400000,736:1300000,3145:1300000,3202:1300000,325:1200000,1336:1050000,868:1000000,1901:1000000,3062:1000000,1581:990000,52:950000,30:900000,1144:900000,2058:900000,2641:889000,1808:888888,3122:888000,2145:869000,1411:850000,193:820000,465:800000,2142:790000,2241:790000,1944:750000,2897:750000,577:720000,255:700000,257:700000,1646:700000,712:690000,1040:666000,3231:660000,1995:625000,1163:600000,2320:600000,2177:599000,2782:570000,117:569000,1552:560000,120:550000,810:550000,1361:550000,2032:550000,2590:550000,2835:550000,2952:550000,3024:550000,3025:550000,277:540000,2436:531000,1323:530000,1976:530000,2527:529000,2617:528800,1204:522222,380:510000,391:510000,881:510000,2922:500000,3038:500000,2360:498000,1017:490000,1081:490000,2217:490000,1216:480000,1264:480000,2735:469000,2350:460000,1267:443000,1211:442000,2516:440000,3183:440000,1151:439800,1240:430000,1463:420000,1667:420000,1239:410000};
     var GHOST_IDS = [1612, 1613, 2816, 2817, 2881, 2889];
     var MAX_ID = 3332;
     function isGhostId(id) { return GHOST_IDS.indexOf(id) >= 0; }
@@ -4075,7 +4075,7 @@
       if ($("footText")) { var o7 = _orig("footText"); $("footText").innerHTML = isEn() ? "Enemy images are the <span class=\"listing-count\">80</span> listed pieces (<span class=\"listing-source\">snapshot</span>); rides can be any number in the full collection and the Boss gallery is the 6 highest-listed pieces — all images were fetched once from the project's public API at build time and stored in this page. The listed pool follows the sync result on open: live sync on success, last successful sync on failure, built-in snapshot on first failure. Project platform: <a href=\"https://ord-dropz.xyz/\" target=\"_blank\" rel=\"noopener\">ord-dropz.xyz</a> · Founder: <a href=\"https://x.com/Ob1_Wan_Satoshi\" target=\"_blank\" rel=\"noopener\">@Ob1_Wan_Satoshi</a>" : o7; }
       document.querySelectorAll(".listing-count").forEach(function (el) { el.textContent = String(LISTED_SORTED.length); });
       if (typeof window.__refreshSyncLabels === "function" && window.__liveSync) window.__refreshSyncLabels();
-      else document.querySelectorAll(".listing-source").forEach(function (el) { el.textContent = window.__listingLive ? T("实时", "live") : T("构建时快照 2026-11-01", "snapshot 2026-10-30"); });
+      else document.querySelectorAll(".listing-source").forEach(function (el) { el.textContent = window.__listingLive ? T("实时", "live") : T("构建时快照 2026-11-02", "snapshot 2026-10-30"); });
       if (typeof ULT_ORDER !== "undefined") {
         ULT_ORDER.forEach(function (id) { var btn = $("ultChip_" + id); if (btn) btn.innerHTML = '<span class="un">' + ULTS[id].name + '</span><span class="ud">' + ULTS[id].desc + "</span>"; });
       }
@@ -5306,7 +5306,7 @@
   window.__liveSync = null;
   window.__syncLabel = function () {
     var s = window.__liveSync;
-    if (!s) return T("构建时快照 2026-11-01", "snapshot 2026-10-30");
+    if (!s) return T("构建时快照 2026-11-02", "snapshot 2026-10-30");
     if (s.source === "proxy") {
       var ds = "";
       try { if (s.ts) ds = new Date(s.ts).toLocaleString(isEn() ? "en-US" : "zh-CN"); } catch (e) {}
@@ -5322,7 +5322,7 @@
       try { if (s.ts) ds = new Date(s.ts).toLocaleString(isEn() ? "en-US" : "zh-CN"); } catch (e) {}
       return T("上一次同步", "last sync") + (ds ? " " + ds : "");
     }
-    return T("构建时快照 2026-11-01", "snapshot 2026-10-30");
+    return T("构建时快照 2026-11-02", "snapshot 2026-10-30");
   };
   window.__refreshSyncLabels = function () {
     try {
