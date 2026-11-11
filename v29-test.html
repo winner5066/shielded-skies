@@ -5650,7 +5650,7 @@
           + (vv === null || vv === undefined ? "—" : vv)
           + T("。上架或移动过的 Naka 本周不能挖 SHNAKAS，所以“本周上架过”的编号就是本周不能挖的编号；下一周开始重新计算。权重按区块实时算，这里是快照口径，仅供参考。点相框里的任意 Naka 看它的挂单价。", ". A Naka listed or moved this week earns no SHNAKAS this week, so the numbers listed this week are the ones that cannot mine this week; the count resets next week. Weights change every block; this is a snapshot, for reference only. Tap any Naka in the marquee to see its listing price.");
         var ids = seen ? seen.ids : null;
-        if (detSum) detSum.textContent = T("本周上架过的编号明细（已去重，带权重）", "Numbers listed this week (deduplicated, with weight)");
+        if (detSum) detSum.textContent = (ids && wById) ? T("本周上架过的编号明细（已去重，带权重）", "Numbers listed this week (deduplicated, with weight)") : T("本周上架过的编号明细（已去重）", "Numbers listed this week (deduplicated)");
         if (ids && ids.length) {
           if (seenList) seenList.textContent = ids.map(function (id) {
             var w = wById && wById[id];
@@ -5661,8 +5661,9 @@
           if (seenList) seenList.textContent = T("本周暂无上架记录。", "No listings this week yet.");
           if (seenNote) seenNote.textContent = "";
         } else {
-          if (seenList) seenList.textContent = T("快照（", "Snapshot (") + WEEK_SNAPSHOT.date + "）：" + T("在售 ", "listed ") + WEEK_SNAPSHOT.total + T(" 件，其中本周新上架 ", " pieces, of which listed this week ") + WEEK_SNAPSHOT.newThisWeek + T(" 件、上周留存 ", " pieces, carried over ") + WEEK_SNAPSHOT.carriedOver + T(" 件。本周已卖出 / 下架的编号暂无法统计，等后端更新、开始记录后才有。", " pieces. Numbers sold / delisted this week cannot be counted yet; they will appear after the backend update starts tracking.");
-          if (seenNote) seenNote.textContent = "";
+          // 后端未更新时：先列出当前在售的编号（页面已有的数据），权重等后端更新后补。
+          if (seenList) seenList.textContent = LISTED_SORTED.map(function (id) { return "#" + id; }).join(" ");
+          if (seenNote) seenNote.textContent = T("快照（", "Snapshot (") + WEEK_SNAPSHOT.date + "）：" + T("在售 ", "listed ") + WEEK_SNAPSHOT.total + T(" 件，其中本周新上架 ", " pieces, of which listed this week ") + WEEK_SNAPSHOT.newThisWeek + T(" 件、上周留存 ", " pieces, carried over ") + WEEK_SNAPSHOT.carriedOver + T(" 件；每枚的权重、以及本周已卖出 / 下架的编号，等后端更新、开始记录后才有。", " pieces; per-number weights, and numbers sold / delisted this week, will appear after the backend update starts tracking.");
         }
         if (repSum) repSum.textContent = T("重复挂单的编号", "Numbers listed more than once");
         var reps = seen ? seen.repeatIds : null;
