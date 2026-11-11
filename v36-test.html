@@ -5730,7 +5730,7 @@
             LISTED_SORTED.forEach(function (id) {
               var p = null;
               if (wById && wById[id]) p = wById[id].pct;
-              else if (typeof WEIGHTS_SNAPSHOT !== "undefined" && WEIGHTS_SNAPSHOT && WEIGHTS_SNAPSHOT[id] !== undefined && WEIGHTS_SNAPSHOT[id] !== null) p = WEIGHTS_SNAPSHOT[id];
+              else if (typeof WEIGHTS_SNAPSHOT !== "undefined" && WEIGHTS_SNAPSHOT && WEIGHTS_SNAPSHOT.pct && WEIGHTS_SNAPSHOT.pct[id] !== undefined && WEIGHTS_SNAPSHOT.pct[id] !== null) p = WEIGHTS_SNAPSHOT.pct[id]; /* v36 fix: snapshot is {height,date,v,k,pct:[...]} — pct lives under .pct, not on the object itself */
               if (p === null || p === undefined || !vv) return;
               rows.push({ id: id, pct: p, amt: (p / 25) * vv * 1008 / 1e8 });
             });
