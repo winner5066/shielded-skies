@@ -5708,6 +5708,21 @@
         var pw400 = wsum ? wsum.perWeek400 : WEEK_SNAPSHOT.perWeek400;
         var top = total ? LISTED_SORTED[0] : null;
         var bottom = total ? LISTED_SORTED[total - 1] : null;
+        var liveRows = null, liveForfeited = null; /* v37b: per-piece forfeited rows from the live listed set; card and detail share them so the two totals always agree */
+        if (!seen) {
+          liveRows = [];
+          LISTED_SORTED.forEach(function (id) {
+            var p = null;
+            if (wById && wById[id]) p = wById[id].pct;
+            else if (typeof WEIGHTS_SNAPSHOT !== "undefined" && WEIGHTS_SNAPSHOT.pct && WEIGHTS_SNAPSHOT.pct[id] !== undefined && WEIGHTS_SNAPSHOT.pct[id] !== null) p = WEIGHTS_SNAPSHOT.pct[id];
+            if (p === null || p === undefined || !vv) return;
+            liveRows.push({ id: id, pct: p, amt: (p / 25) * vv * 1008 / 1e8 });
+          });
+          liveRows.sort(function (a, b) { return b.amt - a.amt; });
+          liveForfeited = liveRows.reduce(function (s2, r) { return s2 + r.amt; }, 0);
+          forfeited = liveForfeited;
+          fUnits = liveRows.reduce(function (s2, r) { return s2 + r.pct / 25; }, 0);
+        }
         var fShare = (forfeited !== null && forfeited !== undefined) ? (forfeited / 266640 * 100).toFixed(2) : null;
         var syncLabel = window.__syncLabel();
         var srcWord = window.__liveSync ? (window.__liveSync.source === "proxy" ? T("实时（代理）", "Live (proxy)") : window.__liveSync.source === "live" ? T("实时", "Live") : window.__liveSync.source === "prev" ? T("上一次同步", "Last sync") : T("构建时快照", "Build snapshot")) : T("构建时快照", "Build snapshot");
@@ -5760,16 +5775,20 @@
         (function () { /* v37: forfeited per-piece detail, moved from the card into this collapsible */
           try {
             if (!fdList) return;
-            var rows = [];
-            LISTED_SORTED.forEach(function (id) {
-              var p = null;
-              if (wById && wById[id]) p = wById[id].pct;
-              else if (typeof WEIGHTS_SNAPSHOT !== "undefined" && WEIGHTS_SNAPSHOT && WEIGHTS_SNAPSHOT.pct && WEIGHTS_SNAPSHOT.pct[id] !== undefined && WEIGHTS_SNAPSHOT.pct[id] !== null) p = WEIGHTS_SNAPSHOT.pct[id];
-              if (p === null || p === undefined || !vv) return;
-              rows.push({ id: id, pct: p, amt: (p / 25) * vv * 1008 / 1e8 });
-            });
-            rows.sort(function (a, b) { return b.amt - a.amt; });
-            var fdSumAmt = rows.reduce(function (s2, r) { return s2 + r.amt; }, 0);
+            var rows = liveRows;
+            var fdSumAmt = liveForfeited;
+            if (!rows) {
+              rows = [];
+              LISTED_SORTED.forEach(function (id) {
+                var p = null;
+                if (wById && wById[id]) p = wById[id].pct;
+                else if (typeof WEIGHTS_SNAPSHOT !== "undefined" && WEIGHTS_SNAPSHOT && WEIGHTS_SNAPSHOT.pct && WEIGHTS_SNAPSHOT.pct[id] !== undefined && WEIGHTS_SNAPSHOT.pct[id] !== null) p = WEIGHTS_SNAPSHOT.pct[id];
+                if (p === null || p === undefined || !vv) return;
+                rows.push({ id: id, pct: p, amt: (p / 25) * vv * 1008 / 1e8 });
+              });
+              rows.sort(function (a, b) { return b.amt - a.amt; });
+              fdSumAmt = rows.reduce(function (s2, r) { return s2 + r.amt; }, 0);
+            }
             if (fdNote) fdNote.textContent = T("在售 ", "Listed ") + rows.length + T(" 件 · 下面这些加起来约 ", " pieces · together about ") + fdSumAmt.toLocaleString("en-US", { maximumFractionDigits: 2 }) + T(" 个 SHNAKAS（占本周 266,640 的 ", " SHNAKAS (") + (fdSumAmt / 266640 * 100).toFixed(2) + T("%）；按不能挖出的数量从多到少排。", "%); sorted by forfeited amount, most first.");
             fdList.innerHTML = rows.length ? rows.map(function (r) { return "<div>#" + r.id + " · " + T("权重 ", "weight ") + r.pct + "% · " + T("约 ", "about ") + r.amt.toFixed(2) + T(" 个", "") + "</div>"; }).join("") : T("暂无权重数据。", "No weight data yet.");
           } catch (e) {}
