@@ -582,7 +582,7 @@
   #submitPanel .sub-why-row select{flex:0 1 auto}
   #submitPanel .sub-why-row input{flex:1 1 160px}
 }
-</style> <style> /* v14 desktop topbar fix: on desktop the pilot box must stay on the same row as the language button; the title block shrinks (its tagline wraps) instead of pushing the pilot to a second row. Mobile (<=640px) keeps the old wrap behaviour. */ @media (min-width:641px){ .topbar{flex-wrap:nowrap} .title-block{flex:1 1 auto;min-width:0} .title-block p{overflow-wrap:break-word} .pilot{flex-shrink:0} .lang-btn{flex-shrink:0} #loginBar{flex-shrink:0} } </style>
+</style> <style> /* v14 desktop topbar fix: on desktop the pilot box must stay on the same row as the language button; the title block shrinks (its tagline wraps) instead of pushing the pilot to a second row. Mobile (<=640px) keeps the old wrap behaviour. */ @media (min-width:641px){ .topbar{flex-wrap:nowrap} .title-block{flex:1 1 auto;min-width:0} .title-block p{overflow-wrap:break-word} .pilot{flex-shrink:0} .lang-btn{flex-shrink:0} #loginBar{flex-shrink:0} } #loginStatus{display:inline-block;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;} </style>
 <style>
 .lock-btn { position:absolute; bottom:16px; right:16px; z-index:3; appearance:none; border:1.5px solid #ffd23f; background:rgba(10,7,3,0.88); color:#ffd23f; font:inherit; font-size:13px; font-weight:800; padding:7px 10px; border-radius:9px; cursor:pointer; }
 .lock-btn.hand-left { left:16px; right:auto; }
@@ -5039,10 +5039,10 @@
         if (av && authState.user.avatar && authState.user.avatar.indexOf("https://pbs.twimg.com/") === 0) { av.src = authState.user.avatar; av.hidden = false; } else if (av) av.hidden = true;
         if (lk) lk.hidden = true; if (lo) lo.hidden = false;
       } else if (authState.backendDown) {
-        st.textContent = window.location.protocol === "file:" ? T("本地文件打开时后端认不出登录状态，请在 Pages 上打开本页", "Opened as a local file — the backend cannot see your login here; open this page on Pages instead") : T("全网服务暂时打不开，本机榜正常玩", "Global service is temporarily unavailable — local board still works");
+        st.textContent = window.location.protocol === "file:" ? T("本地文件打开时后端认不出登录状态，请在 Pages 上打开本页", "Local file · open on Pages") : T("全网服务暂时打不开，本机榜正常玩", "Global board down · local works");
         if (av) av.hidden = true; if (lk) lk.hidden = false; if (lo) lo.hidden = true;
       } else {
-        st.textContent = T("未登录 · 登录后成绩可进全网榜，不登录也能玩本机榜", "Not signed in · Sign in to put scores on the global board; local board works without signing in");
+        st.textContent = T("未登录 · 登录后成绩可进全网榜，不登录也能玩本机榜", "Not signed in");
         if (av) av.hidden = true; if (lk) lk.hidden = false; if (lo) lo.hidden = true;
       }
     }
