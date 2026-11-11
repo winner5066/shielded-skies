@@ -601,6 +601,11 @@
         <div class="ls-sum" id="listingStatsSum"></div>
         <div class="ls-note" id="listingStatsNote"></div>
         <div id="listingGrid"></div>
+        <details id="seenDetails" style="margin-top:10px;">
+          <summary id="seenSummary" style="cursor:pointer;color:#ffd23f;font-size:13px;"></summary>
+          <div class="ls-note" id="seenNote"></div>
+          <div id="seenList" style="font:12px ui-monospace,monospace;color:#f5e6c8;line-height:1.8;word-break:break-all;margin-top:6px;"></div>
+        </details>
       </div>
 
       <div id="submitPanel" style="background:#120c06;border:3px solid #ff8c00;box-shadow:4px 4px 0 #ffd23f;padding:14px;margin-bottom:14px;color:#f5e6c8;">
@@ -5490,6 +5495,7 @@
       });
     }
     function fallback() {
+      try { window.__listingPulse = null; window.__listingSeen = null; } catch (e) {}
       var last = loadLast();
       if (last && applyPool(last.entries, "prev", last.ts)) { setBar(100, ""); hideBar(); return; }
       window.__liveSync = { source: "snapshot", count: LISTED_SORTED.length, ts: 0, done: true };
@@ -5504,6 +5510,7 @@
       _tryProxy().catch(_tryDirect).then(function (data) {
         setBar(35, T("正在解析在售列表…", "Parsing listings…"));
         var entries = parseListings(data);
+        try { window.__listingPulse = (data && data.pulse) ? data.pulse : null; window.__listingSeen = (data && data.seenThisWeek) ? data.seenThisWeek : null; } catch (e) {}
         if (!entries) throw new Error("empty listings");
         var syncSrc = "live", syncTs = Date.now();
         if (data && data.source === "proxy") { syncSrc = data.stale ? "prev" : "proxy"; var _ft = data.fetchedAtMs || (data.fetchedAt ? Date.parse(data.fetchedAt) : 0); if (_ft) syncTs = _ft; }
@@ -5534,11 +5541,11 @@
 <script>
 /* v28: click marquee / stats cell to see price + live listing stats section.
    Live data: total + prices come from the same listings sync (proxy -> direct -> snapshot).
-   Minted / epoch / phase are a build-time snapshot (2026-11-11) because the browser
+   Week / minted / epoch / phase are a build-time snapshot (2026-11-11 15:40) because the browser
    cannot fetch /pulse directly (no CORS) and the proxy does not forward pulse fields yet. */
 (function () {
   try {
-    var PULSE_SNAPSHOT = { minted: 3327, supply: 3333, epoch: "mw5myzw4.0", phase: "fcfs", date: "2026-11-11" };
+    var WEEK_SNAPSHOT = { week: 4, weekStart: 974724, weekEnd: 975731, lastHeight: 975406, minted: 3327, supply: 3333, epoch: "mw5myzw4.0", phase: "fcfs", date: "2026-11-11 15:40", total: 117, newThisWeek: 72, carriedOver: 45 };
     function fmtSats(n) { try { return Number(n).toLocaleString("en-US"); } catch (e) { return String(n); } }
     function statusText(id) {
       var m = (window.__listingMeta && window.__listingMeta[id]) || null;
@@ -5576,20 +5583,54 @@
         var sum = document.getElementById("listingStatsSum");
         var note = document.getElementById("listingStatsNote");
         var grid = document.getElementById("listingGrid");
+        var detSum = document.getElementById("seenSummary");
+        var seenNote = document.getElementById("seenNote");
+        var seenList = document.getElementById("seenList");
         if (!title || !sum || !grid || typeof LISTED_SORTED === "undefined") return;
-        title.textContent = T("在售统计", "Listed stats");
+        title.textContent = T("在售统计 · 本周", "Listed stats · this week");
         var total = LISTED_SORTED.length;
+        // 本周信息：后端新版代理给的 pulse 优先，否则用构建时快照。
+        var pulse = window.__listingPulse || null;
+        var wk = null, liveWeek = false;
+        if (pulse && pulse.weekStart) {
+          wk = { week: pulse.week, weekStart: pulse.weekStart, weekEnd: pulse.weekEnd, lastHeight: pulse.lastHeight, minted: pulse.minted, supply: pulse.supply, epoch: pulse.epoch, phase: pulse.phase };
+          liveWeek = true;
+        } else {
+          wk = { week: WEEK_SNAPSHOT.week, weekStart: WEEK_SNAPSHOT.weekStart, weekEnd: WEEK_SNAPSHOT.weekEnd, lastHeight: WEEK_SNAPSHOT.lastHeight, minted: WEEK_SNAPSHOT.minted, supply: WEEK_SNAPSHOT.supply, epoch: WEEK_SNAPSHOT.epoch, phase: WEEK_SNAPSHOT.phase };
+        }
+        var left = (wk.lastHeight && wk.weekEnd) ? (wk.weekEnd - wk.lastHeight) : null;
+        var leftDays = left !== null ? (left * 10 / 60 / 24).toFixed(1) : null; // 比特币约 10 分钟一块
+        // 按 listedAt 分：本周新上架 / 上周留存；代理旧版不给 listedAt 时用快照数。
+        var meta = window.__listingMeta || {};
+        var nw = 0, co = 0, unk = 0;
+        LISTED_SORTED.forEach(function (id) {
+          var la = meta[id] && meta[id].listedAt;
+          if (la === null || la === undefined) unk++;
+          else if (la >= wk.weekStart) nw++;
+          else co++;
+        });
+        var snapClass = false;
+        if (unk === total && total > 0) { nw = WEEK_SNAPSHOT.newThisWeek; co = WEEK_SNAPSHOT.carriedOver; unk = 0; snapClass = true; }
+        var seen = window.__listingSeen || null;
         var top = total ? LISTED_SORTED[0] : null;
         var bottom = total ? LISTED_SORTED[total - 1] : null;
-        var sumHtml = T("在售总数：", "Currently listed: ") + "<b>" + total + "</b> " + T("件", "pieces")
+        var sumHtml = T("第 ", "Week ") + wk.week + T(" 周", "") + " · " + T("本周区块 ", "Week blocks ") + wk.weekStart + "–" + wk.weekEnd
+          + (left !== null ? " · " + T("剩余约 ", "About ") + left + T(" 区块（约 ", " blocks left (~") + leftDays + T(" 天）", " days)") : "")
+          + "<br>" + T("在售总数：", "Currently listed: ") + "<b>" + total + "</b> " + T("件", "pieces")
           + (top !== null ? " · " + T("最高价", "Highest") + " #" + top + " " + fmtSats(PRICE_MAP[top]) + " sats" : "")
           + (bottom !== null ? " · " + T("最低价", "Lowest") + " #" + bottom + " " + fmtSats(PRICE_MAP[bottom]) + " sats" : "")
+          + "<br>" + T("本周新上架：", "Listed this week: ") + "<b>" + nw + "</b> " + T("件", "pieces")
+          + " · " + T("上周留存：", "Carried over: ") + co + T(" 件", " pieces")
+          + (unk ? " · " + T("上架时间未知：", "Unknown listed time: ") + unk + T(" 件", " pieces") : "")
+          + (snapClass ? T("（快照 ", " (snapshot ") + WEEK_SNAPSHOT.date + "）" : "")
+          + "<br>" + T("本周上架过（累计）：", "Listed at any point this week (total): ")
+          + (seen ? "<b>" + seen.count + "</b> " + T("件", "pieces") : T("暂无记录——后端更新后开始统计", "not tracked yet — starts after the backend update"))
           + " · " + T("价格来源：", "Price source: ") + window.__syncLabel();
         sum.innerHTML = sumHtml;
-        if (note) note.textContent = T("已铸 ", "Minted ") + PULSE_SNAPSHOT.minted + "/" + PULSE_SNAPSHOT.supply
-          + " · " + T("阶段 ", "Phase ") + PULSE_SNAPSHOT.phase + " · epoch " + PULSE_SNAPSHOT.epoch
-          + T("（快照 ", " (snapshot ") + PULSE_SNAPSHOT.date + "）"
-          + T("。点任意编号看它的挂单价。", ". Tap any number to see its listing price.");
+        if (note) note.textContent = T("已铸 ", "Minted ") + wk.minted + "/" + wk.supply
+          + " · " + T("阶段 ", "Phase ") + wk.phase + " · epoch " + wk.epoch
+          + (liveWeek ? "" : T("（快照 ", " (snapshot ") + WEEK_SNAPSHOT.date + "）")
+          + T("。上架或移动过的 Naka 本周不能挖 SHNAKAS，所以“本周上架过”的编号就是本周不能挖的编号；下一周开始重新计算。点任意编号看它的挂单价。", ". A Naka listed or moved this week earns no SHNAKAS this week, so the numbers listed this week are the ones that cannot mine this week; the count resets next week. Tap any number to see its listing price.");
         var html = "";
         LISTED_SORTED.forEach(function (id) {
           var src = (typeof pieceSrc === "function") ? pieceSrc(id) : "";
@@ -5598,6 +5639,15 @@
             + '<span>#' + id + '</span><span class="lp">' + fmtSats(PRICE_MAP[id]) + '</span></div>';
         });
         grid.innerHTML = html;
+        if (detSum) detSum.textContent = T("本周上架过的编号明细", "Numbers listed this week");
+        if (seen) {
+          var ids = seen.ids || [];
+          if (seenList) seenList.textContent = ids.map(function (x) { return "#" + x; }).join(" ");
+          if (seenNote) seenNote.textContent = T("含已卖出 / 已下架的编号；在售的在上面表格里，带价格。", "Includes sold / delisted numbers; the ones still listed are in the table above, with prices.");
+        } else {
+          if (seenList) seenList.textContent = T("快照（", "Snapshot (") + WEEK_SNAPSHOT.date + "）：" + T("在售 ", "listed ") + WEEK_SNAPSHOT.total + T(" 件，其中本周新上架 ", " pieces, of which listed this week ") + WEEK_SNAPSHOT.newThisWeek + T(" 件、上周留存 ", " pieces, carried over ") + WEEK_SNAPSHOT.carriedOver + T(" 件。本周已卖出 / 下架的编号暂无法统计，等后端更新、开始记录后才有。", " pieces. Numbers sold / delisted this week cannot be counted yet; they will appear after the backend update starts tracking.");
+          if (seenNote) seenNote.textContent = "";
+        }
       } catch (e) {}
     };
     function cellIdFromEvent(ev) {
