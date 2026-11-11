@@ -556,7 +556,7 @@
       .theme-player .tp-note { color: #ffd23f; font-size: 16px; }
       .theme-player .tp-track { color: #d8b98a; font-size: 12px; white-space: nowrap; }
       .theme-player .tp-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; font-weight: 700; }
-      .tp-row .mini-btn { height: 32px; padding: 0 10px; font-size: 12.5px; }
+      .tp-row .mini-btn { height: 32px; min-height: 0; padding: 0 16px; font-size: 13px; }
       .theme-player .tp-controls { margin-left: auto; display: flex; gap: 8px; align-items: center; flex: 0 0 auto; }
       .board-store-warn { display: none; margin: 8px 0; padding: 8px 10px; border: 2px solid #ff4757; color: #ffb3bb; font-size: 13px; line-height: 1.6; }
       .board-store-warn.on { display: block; }
@@ -5035,14 +5035,14 @@
         }
       } catch (e) {}
       if (authState.loggedIn && authState.user) {
-        st.textContent = T("已登录 · @", "Signed in · @") + authState.user.username;
+        st.textContent = "@" + authState.user.username;
         if (av && authState.user.avatar && authState.user.avatar.indexOf("https://pbs.twimg.com/") === 0) { av.src = authState.user.avatar; av.hidden = false; } else if (av) av.hidden = true;
         if (lk) lk.hidden = true; if (lo) lo.hidden = false;
       } else if (authState.backendDown) {
         st.textContent = window.location.protocol === "file:" ? T("本地文件打开时后端认不出登录状态，请在 Pages 上打开本页", "Local file · open on Pages") : T("全网服务暂时打不开，本机榜正常玩", "Global board down · local works");
         if (av) av.hidden = true; if (lk) lk.hidden = false; if (lo) lo.hidden = true;
       } else {
-        st.textContent = T("未登录 · 登录后成绩可进全网榜，不登录也能玩本机榜", "Not signed in");
+        st.textContent = T("未登录", "Not signed in");
         if (av) av.hidden = true; if (lk) lk.hidden = false; if (lo) lo.hidden = true;
       }
     }
