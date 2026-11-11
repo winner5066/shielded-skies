@@ -4130,6 +4130,9 @@
       if ($("weightQueryBtn")) $("weightQueryBtn").textContent = T("查询", "Search");
       var _wq = $("weightQueryInput"); if (_wq) _wq.placeholder = T("#编号，如 188", "#number, e.g. 188");
       if (window.__renderShnakas) window.__renderShnakas();
+      if (typeof window.__renderListingStats === "function") window.__renderListingStats();
+      if (typeof window.__showListingPrice === "function" && window.__lastPriceId != null) { var _pb = document.getElementById("priceBar"); if (_pb && _pb.classList.contains("on")) window.__showListingPrice(window.__lastPriceId, true); }
+      var _wqh = $("weightQueryHint"); if (_wqh) _wqh.textContent = "";
       _setText("boardTitle", "排行榜", "Leaderboard");
       _setText("boardHint", "成绩保存在这台设备上，打开就能跟自己和同设备玩家比。本机榜先练手，社区全网榜随公开部署版一起上。", "Scores are saved on this device — open the page and compare with yourself and other players on this device. This local board is for practice; the community global board will come with the public release.");
       _setText("boardTabAll", "无尽榜", "Endless board");
@@ -5669,10 +5672,11 @@
           + (liveW ? "" : T("（权重快照 ", " (weight snapshot ") + WEIGHTS_SNAPSHOT.date + "）") + '</div>';
       } catch (e) { return ""; }
     }
-    window.__showListingPrice = function (id) {
+    window.__showListingPrice = function (id, noscroll) {
       try {
         var bar = document.getElementById("priceBar");
         if (!bar) return;
+        window.__lastPriceId = id;
         var src = (typeof pieceSrc === "function") ? pieceSrc(id) : "";
         var price = (typeof PRICE_MAP !== "undefined") ? PRICE_MAP[id] : undefined;
         var html = "";
@@ -5693,7 +5697,7 @@
         }
         bar.innerHTML = html;
         bar.classList.add("on");
-        try { bar.scrollIntoView({ block: "nearest" }); } catch (e) {}
+        if (!noscroll) { try { bar.scrollIntoView({ block: "nearest" }); } catch (e) {} }
       } catch (e) {}
     };
     window.__renderListingStats = function () {
@@ -5955,12 +5959,12 @@
 })();
 
 /* v40: SHNAKAS market strip - same idea as the Naka listings: the market record
-   (listed count, floor, sales, volume) plus the per-pouch list when available.
-   The per-pouch endpoint (Ord Dropz rune-listings) currently 404s, so the list
-   stays empty with an honest note until Ord Dropz fixes it. Live data comes
-   from the backend proxy /api/shnakas; until the VM backend is updated the
-   embedded snapshot below is used and labelled as a snapshot. */
-var SHNAKAS_SNAPSHOT = { date: "2026-11-11 23:02", listed: 197, listedPercent: 8.04, totalPouches: 2449, floor: 157.6, floorPouch: 4000, salesTotal: 333, sales1d: 21, volumeTotal: 20381447, volume1d: 1060500, lastSalePrice: 6800, lastSaleDate: "2026-11-11 22:30", issued: 463088.9, ceiling: 21000000, ath: 399.54 };
+   (listed count, floor, sales, volume) plus the per-pouch list. The rows come
+   from the shielded API .../rewards/rune/listings (plain array, sorted here by
+   per-token price ascending); the old Railway rune-listings path 404s and is
+   not used. Live data comes from the backend proxy /api/shnakas; until the VM
+   backend is updated the embedded snapshot below is used and labelled as such. */
+var SHNAKAS_SNAPSHOT = { date: "2026-11-11 23:20", listed: 198, listedPercent: 8.08, totalPouches: 2449, floor: 156.55, floorPouch: 4000, salesTotal: 333, sales1d: 21, volumeTotal: 20381447, volume1d: 1060500, lastSalePrice: 6800, lastSaleDate: "2026-11-11 22:30", issued: 463088.9, ceiling: 21000000, ath: 399.54 };
 (function () {
   try {
     var SHNAKAS_PROXY = "https://api.shieldedskies.xyz/api/shnakas";
@@ -5993,21 +5997,21 @@ var SHNAKAS_SNAPSHOT = { date: "2026-11-11 23:02", listed: 197, listedPercent: 8
         var rows = (d && Array.isArray(d.listings)) ? d.listings.slice() : null;
         if (rows) {
           rows.sort(function (a, b) {
-            var pa = a.askSats / (a.runeAmountRaw / Math.pow(10, a.divisibility || 8));
-            var pb = b.askSats / (b.runeAmountRaw / Math.pow(10, b.divisibility || 8));
+            var pa = Number(a.price) / (Number(a.lotSize) / 1e8);
+            var pb = Number(b.price) / (Number(b.lotSize) / 1e8);
             return pa - pb;
           });
         }
         if (detSum) detSum.textContent = T("逐件挂单明细", "Per-pouch listings") + (rows ? "（" + rows.length + "）" : "");
         if (rows && rows.length) {
-          if (detNote) detNote.textContent = T("按单价从低到高排。", "Cheapest first.");
+          if (detNote) detNote.textContent = T("按单价从低到高排，共 ", "Cheapest first, ") + rows.length + T(" 件。", " rows.");
           if (detList) detList.innerHTML = rows.map(function (r) {
-            var amt = r.runeAmountRaw / Math.pow(10, r.divisibility || 8);
-            var per = amt ? (r.askSats / amt) : null;
-            return "<div>" + T("约 ", "about ") + amt.toLocaleString("en-US", { maximumFractionDigits: 2 }) + " SHNAKAS · " + T("单价 ", "per ") + (per === null ? "—" : per.toFixed(1)) + " sats · " + T("总价 ", "total ") + fmt(r.askSats) + " sats</div>";
+            var amt = Number(r.lotSize) / 1e8;
+            var per = amt ? (Number(r.price) / amt) : null;
+            return "<div>#" + r.assetId + " · " + T("约 ", "about ") + amt.toLocaleString("en-US", { maximumFractionDigits: 2 }) + " SHNAKAS · " + T("单价 ", "per ") + (per === null ? "—" : per.toFixed(1)) + " sats · " + T("总价 ", "total ") + fmt(r.price) + " sats</div>";
           }).join("");
         } else {
-          if (detNote) detNote.textContent = T("挂单明细暂未返回：Ord Dropz 的逐件挂单接口目前返回 404，等官方修好后这里自动显示逐件挂单；上面是在售总数、地板价等市场数据。", "No per-pouch rows yet: the Ord Dropz per-pouch endpoint currently returns 404; rows will appear here automatically once it is fixed. The market totals above are shown instead.");
+          if (detNote) detNote.textContent = T("逐件挂单暂未返回，请稍后再看；上面是在售总数、地板价等市场数据。", "No per-pouch rows yet; please check back shortly. The market totals above are shown instead.");
           if (detList) detList.textContent = "";
         }
       } catch (e) {}
