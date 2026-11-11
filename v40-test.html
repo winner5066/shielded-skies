@@ -4125,7 +4125,7 @@
       var _mOn = (typeof SN_AUDIO !== "undefined") ? SN_AUDIO.isEnabled() : true;
       if ($("musicBtn")) $("musicBtn").textContent = _mOn ? T("音乐：开", "Music: On") : T("音乐：关", "Music: Off");
       if ($("musicBtn2")) $("musicBtn2").textContent = _mOn ? T("音乐：开", "Music: On") : T("音乐：关", "Music: Off");
-      if ($("themeTitle")) $("themeTitle").textContent = T("《隐私荣耀》", "shielded nakas");
+      if ($("themeTitle")) $("themeTitle").textContent = T("《隐私荣耀》", "《shielded nakas》");
       if ($("weightQueryLabel")) $("weightQueryLabel").textContent = T("权重查询", "Weight lookup");
       if ($("weightQueryBtn")) $("weightQueryBtn").textContent = T("查询", "Search");
       var _wq = $("weightQueryInput"); if (_wq) _wq.placeholder = T("#编号，如 188", "#number, e.g. 188");
@@ -5898,7 +5898,7 @@
     function chip() { var c = document.getElementById("themeTrack"); if (c) { c.textContent = T("第 " + (idx + 1) + " 首", "Track " + (idx + 1)); c.style.display = TRACKS.length > 1 ? "" : "none"; } }
     function label() {
       btn.textContent = on ? T("主题曲：开", "Theme: On") : T("主题曲：关", "Theme: Off");
-      var tt = document.getElementById("themeTitle"); if (tt) tt.textContent = T("《隐私荣耀》", "shielded nakas");
+      var tt = document.getElementById("themeTitle"); if (tt) tt.textContent = T("《隐私荣耀》", "《shielded nakas》");
       if (playBtn) playBtn.textContent = (on && !paused) ? T("⏸ 暂停", "⏸ Pause") : T("▶ 播放", "▶ Play");
       if (nextBtn) nextBtn.style.display = TRACKS.length > 1 ? "" : "none";
     }
