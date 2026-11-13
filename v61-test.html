@@ -6406,12 +6406,12 @@ window.__shnakasSnapshot = SHNAKAS_SNAPSHOT;
         var sum = document.getElementById("shnakasSum");
         if (sum) {
           var cards = [];
-          cards.push({ v: "<b>" + fmt(s.listed) + "</b> " + T("个钱袋", "pouches"), k: T("在售钱袋 · 占全部 ", "Listed pouches · of ") + fmt(s.totalPouches) + (s.listedPercent == null ? "" : " (" + Number(s.listedPercent).toFixed(2) + "%)") });
-          cards.push({ v: "<b>" + (s.floor == null ? "—" : Number(s.floor).toFixed(2)) + "</b> " + T("聪", "sats"), k: T("地板价 / SHNAKAS", "Floor per SHNAKAS") + " · " + T("每个钱袋约 ", "about ") + fmt(s.floorPouch) + " " + T("聪", "sats") });
+          cards.push({ v: "<b>" + fmt(s.listed) + "</b> " + T("个钱袋", "pouches"), k: T("在售钱袋 · 占全部 ", "Listed pouches · of ") + fmt(s.totalPouches) + (s.listedPercent == null ? "" : " (" + Number(s.listedPercent).toFixed(1) + "%)") });
+          cards.push({ v: "<b>" + (s.floor == null ? "—" : Number(s.floor).toFixed(1)) + "</b> " + T("聪", "sats"), k: T("地板价 / SHNAKAS", "Floor per SHNAKAS") + " · " + T("每个钱袋约 ", "about ") + fmt(s.floorPouch) + " " + T("聪", "sats") });
           cards.push({ v: "<b>" + fmt(s.salesTotal) + "</b> " + T("笔", "sales"), k: T("累计成交", "Total sales") + " · 24h " + fmt(s.sales1d) + T(" 笔", "") });
           cards.push({ v: "<b>" + fmt(s.volumeTotal) + "</b> " + T("聪", "sats"), k: T("累计成交量", "Total volume") + " · 24h " + fmt(s.volume1d) + " " + T("聪", "sats") });
           cards.push({ v: "<b>" + fmt(s.lastSalePrice) + "</b> " + T("聪", "sats"), k: T("最近成交", "Last sale") + " · " + fmtDate(s.lastSaleDate) });
-          cards.push({ v: "<b>" + fmt(Math.round(s.issued)) + "</b>", k: T("已发行 / 总量 ", "Issued / max ") + fmt(s.ceiling) + " · ATH " + (s.ath == null ? "—" : Number(s.ath).toFixed(2)) + " " + T("聪", "sats") });
+          cards.push({ v: "<b>" + fmt(Math.round(s.issued)) + "</b>", k: T("已发行 / 总量 ", "Issued / max ") + fmt(s.ceiling) + " · ATH " + (s.ath == null ? "—" : Number(s.ath).toFixed(1)) + " " + T("聪", "sats") });
           var html = '<div class="stat-cards">';
           cards.forEach(function (c) { html += '<div class="stat-card"><div class="sc-v">' + c.v + '</div><div class="sc-k">' + c.k + "</div></div>"; });
           html += "</div>";
@@ -6585,7 +6585,7 @@ window.__shnakasSnapshot = SHNAKAS_SNAPSHOT;
       var s = shnakasData(); if (!s) return [];
       return [
         [T("在售钱袋", "Listed pouches"), n2(s.listed) + T(" 个", "")],
-        [T("地板价", "Floor"), (s.floor == null ? "—" : Number(s.floor).toFixed(2)) + " sats / SHNAKAS"],
+        [T("地板价", "Floor"), (s.floor == null ? "—" : Number(s.floor).toFixed(1)) + " sats / SHNAKAS"],
         [T("累计成交", "Total sales"), n2(s.salesTotal) + T(" 笔", " sales")],
         [T("累计成交量", "Total volume"), n2(s.volumeTotal) + " sats"],
         [T("已发行", "Issued"), n2(Math.round(s.issued)) + " / " + n2(s.ceiling)]
@@ -6597,8 +6597,8 @@ window.__shnakasSnapshot = SHNAKAS_SNAPSHOT;
       if (kind === "sh") {
         var s = shnakasData(); if (!s) return "SHNAKAS " + link + " " + tags;
         return isEn()
-          ? ("SHNAKAS: " + s.listed + " pouches listed, floor " + (s.floor == null ? "—" : Number(s.floor).toFixed(2)) + " sats, " + s.salesTotal + " sales so far. Details in the image 👇 " + link + " " + tags)
-          : ("SHNAKAS 在售 " + s.listed + " 个钱袋，地板价 " + (s.floor == null ? "—" : Number(s.floor).toFixed(2)) + " sats，累计成交 " + s.salesTotal + " 笔，详情见图 👇 " + link + " " + tags);
+          ? ("SHNAKAS: " + s.listed + " pouches listed, floor " + (s.floor == null ? "—" : Number(s.floor).toFixed(1)) + " sats, " + s.salesTotal + " sales so far. Details in the image 👇 " + link + " " + tags)
+          : ("SHNAKAS 在售 " + s.listed + " 个钱袋，地板价 " + (s.floor == null ? "—" : Number(s.floor).toFixed(1)) + " sats，累计成交 " + s.salesTotal + " 笔，详情见图 👇 " + link + " " + tags);
       }
       var d = nakasData();
       return isEn()
