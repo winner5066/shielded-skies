@@ -630,7 +630,7 @@
   #listingStats .stat-card .sc-k, #shnakasPanel .stat-card .sc-k { font-size: 14px; }
   #listingStats .ls-note, #shnakasPanel .ls-note { font-size: 14px; }
   #listingStats details summary, #shnakasPanel details summary { font-size: 15px !important; }
-  #forfeitList, #seenList, #repeatList, #shnakasList, #histTable { font-size: 14px !important; }
+  #forfeitList, #seenList, #repeatList, #shnakasList { font-size: 14px !important; }
 }
 @media (max-width: 640px) {
   .tp-row { flex-direction: column; }
@@ -833,11 +833,6 @@
           <summary id="repeatSummary" style="cursor:pointer;color:#ffd23f;font-size:13px;"></summary>
           <div class="ls-note" id="repeatNote"></div>
           <div id="repeatList" style="font:12px ui-monospace,monospace;color:#f5e6c8;line-height:1.8;word-break:break-all;margin-top:6px;"></div>
-        </details>
-        <details id="histDetails" style="margin-top:10px;">
-          <summary id="histSummary" style="cursor:pointer;color:#ffd23f;font-size:13px;"></summary>
-          <div class="ls-note" id="histNote"></div>
-          <div id="histTable" style="font:12px ui-monospace,monospace;color:#f5e6c8;line-height:1.8;margin-top:6px;"></div>
         </details>
       </div>
       </div>
@@ -5980,9 +5975,6 @@
         var fdSum = document.getElementById("forfeitSummary");
         var fdNote = document.getElementById("forfeitNote");
         var fdList = document.getElementById("forfeitList");
-        var hSum = document.getElementById("histSummary");
-        var hNote = document.getElementById("histNote");
-        var hTab = document.getElementById("histTable");
         if (!title || !sum || typeof LISTED_SORTED === "undefined") return;
         title.textContent = T("在售统计 · 本周", "Listed stats · this week");
         var total = LISTED_SORTED.length;
@@ -6110,23 +6102,6 @@
             fdList.innerHTML = rows.length ? rows.map(function (r) { return "<div>#" + r.id + " · " + T("权重 ", "weight ") + r.pct + "% · " + T("约 ", "about ") + r.amt.toFixed(2) + T(" 个", "") + "</div>"; }).join("") : T("暂无权重数据。", "No weight data yet.");
           } catch (e) {}
         })();
-        /* v47: forfeited-by-week history (Weeks 0-3, static; numbers from the screenshot
-           青春 sent on 2026-11-12; weekly pool 266,640; Week 4 onwards to be added). */
-        if (hSum) hSum.textContent = T("历周不可领取（历史）", "Forfeited by week (history)");
-        if (hNote) hNote.textContent = T("Week 0–3 为历史静态数据，来源：2026-11-12 你发来的截图；每周奖池 266,640 个 SHNAKAS。第 4 周起待补充。", "Weeks 0–3 are static history, from the screenshot you sent on 2026-11-12; weekly pool 266,640 SHNAKAS. Week 4 onwards to be added.");
-        if (hTab) {
-          var hr = function (w, n, a, p) { return '<tr><td style="padding:2px 6px;">' + w + '</td><td style="text-align:right;padding:2px 6px;">' + n + '</td><td style="text-align:right;padding:2px 6px;">' + a + '</td><td style="text-align:right;padding:2px 6px;">' + p + '</td></tr>'; };
-          hTab.innerHTML =
-            '<table style="border-collapse:collapse;width:100%;">' +
-            '<tr style="color:#ffd23f;"><th style="text-align:left;padding:2px 6px;">' + T("周次", "Week") + '</th><th style="text-align:right;padding:2px 6px;">' + T("有活动的枚数", "Pieces active") + '</th><th style="text-align:right;padding:2px 6px;">' + T("不可领取（约）", "Forfeited (approx.)") + '</th><th style="text-align:right;padding:2px 6px;">' + T("占当周奖池", "Share of weekly pool") + '</th></tr>' +
-            hr("Week 0", "589", "≈47,205", "17.70%") +
-            hr("Week 1", "218", "≈17,471", "6.55%") +
-            hr("Week 2", "176", "≈14,105", "5.29%") +
-            hr("Week 3", "214", "≈17,151", "6.43%") +
-            '<tr style="border-top:1px solid #3a2a12;color:#ffd23f;font-weight:700;"><td style="padding:2px 6px;">' + T("累计 4 周", "4-week total") + '</td><td style="text-align:right;padding:2px 6px;">—</td><td style="text-align:right;padding:2px 6px;">≈95,933</td><td style="text-align:right;padding:2px 6px;">≈8.99%*</td></tr>' +
-            '</table>' +
-            '<div style="color:#b9a68a;margin-top:4px;">' + T("*累计占比按已发行 1,066,560 个算；每周占比按当周奖池 266,640 个算。", "*The total share is of the 1,066,560 SHNAKAS issued so far; each weekly share is of that week's 266,640 pool.") + '</div>';
-        }
       } catch (e) {}
     };
     function cellIdFromEvent(ev) {
