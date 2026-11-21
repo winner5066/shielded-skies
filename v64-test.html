@@ -6181,7 +6181,7 @@
       idx = ((i % TRACKS.length) + TRACKS.length) % TRACKS.length;
       try { if (typeof storeSet === "function") storeSet(IDX_KEY, String(idx)); } catch (e) {}
       try { audio.src = TRACKS[idx].src; } catch (e) {}
-      chip();
+      label();
       if (autoplay) tryPlay();
     }
     function apply() {
